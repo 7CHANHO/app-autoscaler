@@ -12,6 +12,7 @@ const MetricNameMemoryUtil = "memoryutil"
 const MetricNameMemoryUsed = "memoryused"
 const MetricNameThroughput = "throughput"
 const MetricNameResponseTime = "responsetime"
+const MetricNameCpuUsed = "cpuused"
 
 type AppInstanceMetric struct {
 	AppId         string `json:"app_id"`

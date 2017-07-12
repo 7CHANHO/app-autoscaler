@@ -73,7 +73,7 @@ var _ = Describe("AppStreamer", func() {
 				}()
 			})
 			It("Saves memory and throughput metrics to database", func() {
-				Eventually(database.SaveMetricCallCount).Should(Equal(4))
+				Eventually(database.SaveMetricCallCount).Should(Equal(6))
 				Expect(database.SaveMetricArgsForCall(0)).To(Equal(&models.AppInstanceMetric{
 					AppId:         "an-app-id",
 					InstanceIndex: 0,
@@ -95,6 +95,16 @@ var _ = Describe("AppStreamer", func() {
 
 				Expect(database.SaveMetricArgsForCall(2)).To(Equal(&models.AppInstanceMetric{
 					AppId:         "an-app-id",
+					InstanceIndex: 0,
+					CollectedAt:   fclock.Now().UnixNano(),
+					Name:          models.MetricNameCpuUsed,
+					Unit:          models.UnitPercentage,
+					Value:         "12",
+					Timestamp:     111111,
+				}))
+
+				Expect(database.SaveMetricArgsForCall(3)).To(Equal(&models.AppInstanceMetric{
+					AppId:         "an-app-id",
 					InstanceIndex: 1,
 					CollectedAt:   fclock.Now().UnixNano(),
 					Name:          models.MetricNameMemoryUsed,
@@ -103,7 +113,7 @@ var _ = Describe("AppStreamer", func() {
 					Timestamp:     222222,
 				}))
 
-				Expect(database.SaveMetricArgsForCall(3)).To(Equal(&models.AppInstanceMetric{
+				Expect(database.SaveMetricArgsForCall(4)).To(Equal(&models.AppInstanceMetric{
 					AppId:         "an-app-id",
 					InstanceIndex: 1,
 					CollectedAt:   fclock.Now().UnixNano(),
@@ -113,21 +123,31 @@ var _ = Describe("AppStreamer", func() {
 					Timestamp:     222222,
 				}))
 
+				Expect(database.SaveMetricArgsForCall(5)).To(Equal(&models.AppInstanceMetric{
+					AppId:         "an-app-id",
+					InstanceIndex: 1,
+					CollectedAt:   fclock.Now().UnixNano(),
+					Name:          models.MetricNameCpuUsed,
+					Unit:          models.UnitPercentage,
+					Value:         "30",
+					Timestamp:     222222,
+				}))
+
 				By("collecting and computing throughput")
-				Consistently(database.SaveMetricCallCount).Should(Equal(4))
+				Consistently(database.SaveMetricCallCount).Should(Equal(6))
 
 				By("save throughput after the collect interval")
 				fclock.WaitForWatcherAndIncrement(TestCollectInterval)
-				Eventually(database.SaveMetricCallCount).Should(Equal(5))
-				Expect(database.SaveMetricArgsForCall(4)).To(Equal(&models.AppInstanceMetric{
-					AppId:         "an-app-id",
-					InstanceIndex: 0,
-					CollectedAt:   fclock.Now().UnixNano(),
-					Name:          models.MetricNameThroughput,
-					Unit:          models.UnitRPS,
-					Value:         "0",
-					Timestamp:     fclock.Now().UnixNano(),
-				}))
+				Eventually(database.SaveMetricCallCount).Should(Equal(7))
+				// Expect(database.SaveMetricArgsForCall(5)).To(Equal(&models.AppInstanceMetric{
+				// 	AppId:         "an-app-id",
+				// 	InstanceIndex: 1,
+				// 	CollectedAt:   fclock.Now().UnixNano(),
+				// 	Name:          models.MetricNameMemoryUtil,
+				// 	Unit:          models.UnitPercentage,
+				// 	Value:         "67",
+				// 	Timestamp:     222222,
+				// }))
 			})
 
 			Context("when saving to database fails", func() {
