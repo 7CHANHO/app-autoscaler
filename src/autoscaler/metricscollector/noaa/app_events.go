@@ -84,6 +84,17 @@ func GetInstanceMemoryUtilMetricFromContainerMetricEvent(collectAt int64, appId 
 	return nil
 }
 
+func GetInstanceCpuMetricsFromContainerEnvelopes(collectAt int64, appId string, containerEnvelopes []*events.Envelope) []*models.AppInstanceMetric {
+	metrics := []*models.AppInstanceMetric{}
+	for _, event := range containerEnvelopes {
+		instanceMetric := GetInstanceCpuUsedMetricFromContainerMetricEvent(collectAt, appId, event)
+		if instanceMetric != nil {
+			metrics = append(metrics, instanceMetric)
+		}
+	}
+	return metrics
+}
+
 func GetInstanceCpuUsedMetricFromContainerMetricEvent(collectAt int64, appId string, event *events.Envelope) *models.AppInstanceMetric {
 	cm := event.GetContainerMetric()
 	if (cm != nil) && (*cm.ApplicationId == appId) {
@@ -93,7 +104,7 @@ func GetInstanceCpuUsedMetricFromContainerMetricEvent(collectAt int64, appId str
 			CollectedAt:   collectAt,
 			Name:          models.MetricNameCpuUsed,
 			Unit:          models.UnitPercentage,
-			Value:         fmt.Sprintf("%d", int(float64(cm.GetCpuPercentage()))),
+			Value:         fmt.Sprintf("%d", int(float64(cm.GetCpuPercentage()*100))),
 			Timestamp:     event.GetTimestamp(),
 		}
 	}
