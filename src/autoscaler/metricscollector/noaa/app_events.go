@@ -104,7 +104,7 @@ func GetInstanceCpuUsedMetricFromContainerMetricEvent(collectAt int64, appId str
 			CollectedAt:   collectAt,
 			Name:          models.MetricNameCpuUsed,
 			Unit:          models.UnitPercentage,
-			Value:         fmt.Sprintf("%d", int(float64(cm.GetCpuPercentage()*100))),
+			Value:         fmt.Sprintf("%d", int(float64(cm.GetCpuPercentage()))),
 			Timestamp:     event.GetTimestamp(),
 		}
 	}

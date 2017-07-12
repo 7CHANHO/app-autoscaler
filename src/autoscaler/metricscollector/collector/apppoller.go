@@ -93,7 +93,7 @@ func (ap *appPoller) pollMetric() {
 		}
 	}
 
-	metrics := noaa.GetInstanceCpuMetricsFromContainerEnvelopes(ap.pclock.Now().UnixNano(), ap.appId, containerEnvelopes)
+	metrics = noaa.GetInstanceCpuMetricsFromContainerEnvelopes(ap.pclock.Now().UnixNano(), ap.appId, containerEnvelopes)
 	logger.Debug("poll-metric-get-cpu-metrics", lager.Data{"metrics": metrics})
 
 	for _, metric := range metrics {
